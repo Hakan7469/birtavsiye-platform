@@ -17,6 +17,7 @@ export default function RecommendationCard() {
       if (error) {
         console.error('Veri çekme hatası:', error.message);
       } else {
+        console.log('Veri çekildi:', data); 
         setRecommendations(data);
       }
     }
