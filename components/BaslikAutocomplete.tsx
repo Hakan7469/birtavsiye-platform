@@ -49,27 +49,27 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
   return (
     <div className="relative">
       <input
-       type="text"
-  className="border px-3 py-2 rounded w-full"
-  value={searchTerm}
-  onChange={(e) => {
-    setSearchTerm(e.target.value);
-    setShowSuggestions(true);
-  }}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      console.log("Enter detected", suggestions);
-    }
-    if (e.key === "Enter" && suggestions.length > 0) {
-      handleSelect(suggestions[0]);
-      e.preventDefault();
-    }
-  }}
-  onFocus={() => setShowSuggestions(true)}
-  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-  placeholder="Başlık yaz..."
-/>
+        type="text"
+        className="border px-3 py-2 rounded w-full"
+        value={searchTerm}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          setShowSuggestions(true);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            console.log("Enter detected", suggestions); // test çıktısı
+          }
+          if (e.key === "Enter" && suggestions.length > 0) {
+            handleSelect(suggestions[0]);
+            e.preventDefault();
+          }
+        }}
+        onFocus={() => setShowSuggestions(true)}
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+        placeholder="Başlık yaz..."
       />
+
       {showSuggestions && suggestions.length > 0 && (
         <ul className="absolute bg-white border w-full mt-1 max-h-48 overflow-auto rounded shadow">
           {suggestions.map((title, index) => (
@@ -83,6 +83,7 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
           ))}
         </ul>
       )}
+
       {showSuggestions && searchTerm.length >= 2 && suggestions.length === 0 && (
         <div className="absolute bg-white border w-full mt-1 px-3 py-2 text-gray-500">
           Yeni başlık ekle: <strong>{searchTerm}</strong>
