@@ -21,10 +21,6 @@ export default function HomePage() {
   const [title, setTitle] = useState("");
   const [entries, setEntries] = useState<Entry[]>([]);
 
-  // LOG: Şu anki seçili başlık
-  console.log("Aktif başlık:", title);
-
-  // Seçilen başlığa ait entry'leri Supabase'den getir
   useEffect(() => {
     const fetchEntries = async () => {
       if (!title) return;
@@ -35,22 +31,19 @@ export default function HomePage() {
         .eq("title", title)
         .order("id", { ascending: false });
 
-      if (!error) {
+      if (!error && data) {
         setEntries(data as Entry[]);
       } else {
-        console.error("Entry fetch error:", error.message);
+        console.error("Entry fetch error:", error?.message);
       }
     };
 
     fetchEntries();
   }, [title]);
 
-  // Yeni öneri gönderimi
   const handleSubmit = async (content: string) => {
-    // Başlık veritabanında yoksa ekle
     await supabase.from("basliklar").upsert([{ title }]);
 
-    // Yeni entry ekle
     const { error } = await supabase.from("entries").insert([
       {
         content,
