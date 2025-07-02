@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 import BaslikAutocomplete from "../components/BaslikAutocomplete";
 import EntryForm from "../components/EntryForm";
 import RecommendationCard from "../components/RecommendationCard";
-import { supabase } from "../lib/supabaseClient";
 
 type Entry = {
   id: string;
-  title: string;
   content: string;
+  title: string;
   author: string;
-  created_at?: string;
 };
 
 export default function HomePage() {
@@ -19,7 +18,6 @@ export default function HomePage() {
   useEffect(() => {
     const fetchEntries = async () => {
       if (!title) return;
-      console.log("Aktif başlık:", title);
 
       const { data, error } = await supabase
         .from("recommendations")
@@ -38,7 +36,7 @@ export default function HomePage() {
   }, [title]);
 
   const handleSubmit = async (content: string) => {
-    const { error } = await supabase.from("recommendations").insert([
+    const { error, data } = await supabase.from("recommendations").insert([
       {
         content,
         title,
@@ -46,14 +44,13 @@ export default function HomePage() {
       },
     ]);
 
-    if (!error) {
-      console.log("Yeni kayıt eklendi");
+    if (!error && data) {
       setEntries((prev) => [
-        { id: Date.now().toString(), content, title, author: "hakan" },
+        { id: data[0].id, content, title, author: "hakan" },
         ...prev,
       ]);
     } else {
-      console.error("Insert error:", error.message);
+      console.error("Insert error:", error?.message);
     }
   };
 
@@ -63,12 +60,7 @@ export default function HomePage() {
         <h1 className="text-3xl font-bold text-gray-800 text-center">birTavsiye</h1>
 
         <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <BaslikAutocomplete
-            onSelect={(value) => {
-              console.log("Autocomplete seçildi:", value);
-              setTitle(value);
-            }}
-          />
+          <BaslikAutocomplete onSelect={setTitle} />
         </div>
 
         {title && (
