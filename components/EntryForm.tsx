@@ -1,84 +1,39 @@
-import BaslikAutocomplete from './BaslikAutocomplete';
-// components/EntryForm.tsx
+import { useState } from "react";
 
-import { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+type EntryFormProps = {
+  onSubmit: (content: string) => void;
+  maxChars?: number;
+};
 
-export default function EntryForm() {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [author, setAuthor] = useState('');
-  const [status, setStatus] = useState('');
+export default function EntryForm({ onSubmit, maxChars = 1000 }: EntryFormProps) {
+  const [content, setContent] = useState("");
 
-  const extractBoldTerms = (text) => {
-    const matches = text.match(/\*\*(.*?)\*\*/g);
-    return matches ? matches.map((m) => m.replace(/\*\*/g, '')) : [];
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const highlighted_terms = extractBoldTerms(content);
-    const { error } = await supabase.from('recommendations').insert([
-      {
-        title,
-        content,
-        author,
-        highlighted_terms,
-        is_reviewed: false,
-        is_flagged: false,
-        review_notes: ''
-      },
-    ]);
-
-    if (error) {
-      console.error('Hata:', error.message);
-      setStatus('Hata oluştu.');
-    } else {
-      setStatus('Tavsiye başarıyla kaydedildi.');
-      setTitle('');
-      setContent('');
-      setAuthor('');
-    }
+    if (content.trim().length === 0) return;
+    onSubmit(content.trim());
+    setContent(""); // formu temizle
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 max-w-xl mx-auto">
-      <h2 className="text-2xl font-bold">Yeni Tavsiye Ekle</h2>
-
-      <BaslikAutocomplete onSelect={(value) => setTitle(value)} />
-        type="text"
-        placeholder="Başlık"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="w-full p-2 border rounded"
-        required
-      />
-
+    <form onSubmit={handleSubmit} className="space-y-2">
       <textarea
-        placeholder="Tavsiyenizi yazın (**kalın yazmak** için yıldız kullanın)"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="w-full p-2 border rounded h-40"
-        required
+        placeholder="Tavsiyeni yaz. Kalın vurgular için **çift yıldız** kullanabilirsin."
+        maxLength={maxChars}
+        rows={5}
+        className="w-full p-3 border rounded resize-y"
       />
-
-      <input
-        type="text"
-        placeholder="Yazar Adı"
-        value={author}
-        onChange={(e) => setAuthor(e.target.value)}
-        className="w-full p-2 border rounded"
-        required
-      />
-
+      <div className="text-sm text-gray-500 text-right">
+        {content.length} / {maxChars} karakter
+      </div>
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
       >
         Gönder
       </button>
-
-      {status && <p className="text-sm text-green-600 mt-2">{status}</p>}
     </form>
   );
 }
