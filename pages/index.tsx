@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
 import BaslikAutocomplete from "../components/BaslikAutocomplete";
 import EntryForm from "../components/EntryForm";
 import RecommendationCard from "../components/RecommendationCard";
+import { supabase } from "../lib/supabaseClient";
 
-type Entry = {
+type Recommendation = {
   id: string;
-  content: string;
   title: string;
+  content: string;
   author: string;
 };
 
 export default function HomePage() {
   const [title, setTitle] = useState("");
-  const [entries, setEntries] = useState<Entry[]>([]);
+  const [entries, setEntries] = useState<Recommendation[]>([]);
 
   useEffect(() => {
     const fetchEntries = async () => {
@@ -21,34 +21,35 @@ export default function HomePage() {
 
       const { data, error } = await supabase
         .from("recommendations")
-        .select("*")
+        .select("id, title, content, author")
         .eq("title", title)
-        .order("created_at", { ascending: false });
+        .order("id", { ascending: false });
 
-      if (!error && data) {
-        setEntries(data as Entry[]);
-      } else {
-        console.error("Entry fetch error:", error?.message);
+      if (error) {
+        console.error("Entry fetch error:", error.message);
+        return;
       }
+
+      setEntries(data || []);
     };
 
     fetchEntries();
   }, [title]);
 
   const handleSubmit = async (content: string) => {
-    const { error, data } = await supabase.from("recommendations").insert([
-      {
-        content,
-        title,
-        author: "hakan",
-      },
-    ]);
+    const { error, data } = await supabase
+      .from("recommendations")
+      .insert([
+        {
+          title,
+          content,
+          author: "hakan",
+        },
+      ])
+      .select();
 
     if (!error && data) {
-      setEntries((prev) => [
-        { id: data[0].id, content, title, author: "hakan" },
-        ...prev,
-      ]);
+      setEntries((prev) => [data[0], ...prev]);
     } else {
       console.error("Insert error:", error?.message);
     }
@@ -60,7 +61,7 @@ export default function HomePage() {
         <h1 className="text-3xl font-bold text-gray-800 text-center">birTavsiye</h1>
 
         <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <BaslikAutocomplete onSelect={setTitle} />
+          <BaslikAutocomplete onSelect={(value) => setTitle(value)} />
         </div>
 
         {title && (
