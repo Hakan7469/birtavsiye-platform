@@ -9,8 +9,7 @@ export default function EntryForm({ onSubmit }: EntryFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (content.trim().length === 0) return;
-
+    if (!content.trim()) return;
     onSubmit(content.trim());
     setContent("");
   };
@@ -18,15 +17,14 @@ export default function EntryForm({ onSubmit }: EntryFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <textarea
-        className="w-full border rounded p-2"
-        placeholder="Önerinizi yazın..."
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        rows={4}
+        placeholder="Tavsiyeni yaz..."
+        className="w-full border rounded p-3 h-32 resize-none"
       />
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
       >
         Gönder
       </button>
