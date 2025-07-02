@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import BaslikAutocomplete from "@/components/BaslikAutocomplete";
-import EntryForm from "@/components/EntryForm";
-import RecommendationCard from "@/components/RecommendationCard";
+import BaslikAutocomplete from "../components/BaslikAutocomplete";
+import EntryForm from "../components/EntryForm";
+import RecommendationCard from "../components/RecommendationCard";
 import { createClient } from "@supabase/supabase-js";
 
+// Supabase client kurulumu
 const supabase = createClient(
   "https://ypyadzojzjjmldtosnhm.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -20,6 +21,7 @@ export default function HomePage() {
   const [title, setTitle] = useState("");
   const [entries, setEntries] = useState<Entry[]>([]);
 
+  // Başlık değişince ilgili entry'leri Supabase'den çek
   useEffect(() => {
     const fetchEntries = async () => {
       if (!title) return;
@@ -40,14 +42,16 @@ export default function HomePage() {
     fetchEntries();
   }, [title]);
 
+  // Yeni entry gönderme işlemi
   const handleSubmit = async (content: string) => {
+    // Başlığı yoksa basliklar tablosuna ekle
     await supabase.from("basliklar").upsert([{ title }]);
 
     const { error } = await supabase.from("entries").insert([
       {
         content,
         title,
-        author: "hakan",
+        author: "hakan", // Giriş sistemi eklendiğinde dinamik olacak
       },
     ]);
 
