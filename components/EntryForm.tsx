@@ -9,19 +9,20 @@ export default function EntryForm({ onSubmit }: EntryFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) return;
+    if (content.trim().length === 0) return;
 
     onSubmit(content.trim());
     setContent("");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <textarea
-        className="w-full border rounded p-2 min-h-[100px]"
-        placeholder="Tavsiyeni yaz..."
+        className="w-full border rounded p-2"
+        placeholder="Önerinizi yazın..."
         value={content}
         onChange={(e) => setContent(e.target.value)}
+        rows={4}
       />
       <button
         type="submit"
