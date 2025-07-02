@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  "https://ypyadzojzjjmldtosnhm.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-);
+import { supabase } from "../lib/supabaseClient";
 
 type BaslikAutocompleteProps = {
   onSelect: (value: string) => void;
@@ -28,11 +23,13 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
         .ilike("title", `%${searchTerm}%`)
         .limit(10);
 
-      if (!error && data) {
-        setSuggestions(data.map((d) => d.title));
-      } else {
-        console.error("Autocomplete error:", error?.message);
+      if (error) {
+        console.error("Autocomplete error:", error.message);
+        return;
       }
+
+      const titles = data?.map((item) => item.title) || [];
+      setSuggestions(titles);
     };
 
     fetchSuggestions();
@@ -54,18 +51,18 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
           setSearchTerm(e.target.value);
           setShowSuggestions(true);
         }}
+        onFocus={() => setShowSuggestions(true)}
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && suggestions.length > 0) {
             handleSelect(suggestions[0]);
             e.preventDefault();
           }
         }}
-        onFocus={() => setShowSuggestions(true)}
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
         placeholder="Başlık yaz..."
       />
       {showSuggestions && suggestions.length > 0 && (
-        <ul className="absolute bg-white border w-full mt-1 max-h-48 overflow-auto rounded shadow z-10">
+        <ul className="absolute bg-white border w-full mt-1 max-h-48 overflow-auto rounded shadow">
           {suggestions.map((title, index) => (
             <li
               key={index}
@@ -76,6 +73,11 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
             </li>
           ))}
         </ul>
+      )}
+      {showSuggestions && searchTerm.length >= 2 && suggestions.length === 0 && (
+        <div className="absolute bg-white border w-full mt-1 px-3 py-2 text-gray-500">
+          Yeni başlık ekle: <strong>{searchTerm}</strong>
+        </div>
       )}
     </div>
   );
