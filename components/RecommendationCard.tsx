@@ -1,46 +1,56 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { useState } from "react";
 
-export default function RecommendationCard() {
-  const [recommendations, setRecommendations] = useState<any[]>([]);
+type RecommendationCardProps = {
+  title: string;
+  content: string;
+  author: string;
+};
 
-  useEffect(() => {
-    async function fetchRecommendations() {
-      const { data, error } = await supabase
-        .from('recommendations')
-        .select('*')
-        .order('created_at', { ascending: false });
+export default function RecommendationCard({ title, content, author }: RecommendationCardProps) {
+  const [expanded, setExpanded] = useState(false);
+  const [likes, setLikes] = useState(0);
+  const [dislikes, setDislikes] = useState(0);
 
-      if (error) {
-        console.error('Veri çekme hatası:', error.message);
-      } else {
-        console.log('Veri çekildi:', data);
-        setRecommendations(data);
-      }
-    }
+  const toggleExpand = () => setExpanded(!expanded);
 
-    fetchRecommendations();
-  }, []);
+  const displayedContent = expanded
+    ? content
+    : content.split("\n").slice(0, 4).join("\n");
 
   return (
-    <div className="space-y-4">
-      {/* DEBUG - Veriyi ekrana ham haliyle bas */}
-      <pre className="bg-yellow-50 text-xs text-black p-2 rounded border border-yellow-300">
-        {JSON.stringify(recommendations, null, 2)}
-      </pre>
+    <div className="border rounded-lg p-4 bg-white shadow space-y-2">
+      <h2 className="text-lg font-semibold">{title}</h2>
 
-      {recommendations.length === 0 ? (
-        <p>Henüz tavsiye yok.</p>
-      ) : (
-        recommendations.map((rec) => (
-          <div key={rec.id} className="p-4 bg-gray-100 rounded-xl shadow">
-            <h2 className="text-xl font-semibold">{rec.title}</h2>
-            <p className="text-gray-700">{rec.content}</p>
-            <p className="text-sm text-gray-500 italic mt-2">Yazan: {rec.author}</p>
-          </div>
-        ))
+      <pre className="whitespace-pre-wrap text-gray-800">{displayedContent}</pre>
+
+      {content.split("\n").length > 4 && (
+        <button
+          className="text-blue-600 text-sm hover:underline"
+          onClick={toggleExpand}
+        >
+          {expanded ? "Gizle" : "Devamını Göster"}
+        </button>
       )}
+
+      <div className="flex justify-between items-center pt-2">
+        <div className="text-sm text-gray-600">
+          Yazan: <span className="font-medium">{author}</span>
+        </div>
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={() => setLikes(likes + 1)}
+            className="px-2 py-1 text-green-700 hover:text-green-900"
+          >
+            👍 {likes}
+          </button>
+          <button
+            onClick={() => setDislikes(dislikes + 1)}
+            className="px-2 py-1 text-red-700 hover:text-red-900"
+          >
+            👎 {dislikes}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
