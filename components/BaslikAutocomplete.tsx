@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   "https://ypyadzojzjjmldtosnhm.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlweWFkem9qempqbWxkdG9zbmhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4NDEwODUsImV4cCI6MjA2NjQxNzA4NX0.tbEwxQ0Osj6gKwrXASh7AjKw-8silIOZ3z3Feymao1Q"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz..."
 );
 
 type BaslikAutocompleteProps = {
@@ -41,33 +41,6 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
   }, [searchTerm]);
 
   const handleSelect = (title: string) => {
-<<<<<<< HEAD
-    setInput(title);
-    setSuggestions([]);
-    setShowSuggestions(false);
-    onSelect(title); // üst komponenti bilgilendir
-  };
-
-  return (
-    <div className="relative max-w-xl mx-auto mb-4">
-      <input
-        type="text"
-        placeholder="Başlık yazın..."
-        value={input}
-        onChange={(e) => {
-          setInput(e.target.value);
-          setShowSuggestions(true);
-        }}
-        className="w-full p-2 border rounded"
-      />
-
-      {showSuggestions && suggestions.length > 0 && (
-        <ul className="absolute z-10 bg-white border w-full mt-1 rounded shadow">
-          {suggestions.map((title, idx) => (
-            <li
-              key={idx}
-              className="px-4 py-2 hover:bg-blue-100 cursor-pointer"
-=======
     setSearchTerm(title);
     setShowSuggestions(false);
     onSelect(title);
@@ -93,7 +66,6 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
             <li
               key={index}
               className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
->>>>>>> 54b12a06c91375887b143acd27dee11b8bf5e2b4
               onClick={() => handleSelect(title)}
             >
               {title}
@@ -101,14 +73,11 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
           ))}
         </ul>
       )}
-<<<<<<< HEAD
-=======
       {showSuggestions && searchTerm.length >= 2 && suggestions.length === 0 && (
         <div className="absolute bg-white border w-full mt-1 px-3 py-2 text-gray-500">
           Yeni başlık ekle: <strong>{searchTerm}</strong>
         </div>
       )}
->>>>>>> 54b12a06c91375887b143acd27dee11b8bf5e2b4
     </div>
   );
 }
