@@ -56,6 +56,12 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
           setSearchTerm(e.target.value);
           setShowSuggestions(true);
         }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && suggestions.length > 0) {
+            handleSelect(suggestions[0]);
+            e.preventDefault();
+          }
+        }}
         onFocus={() => setShowSuggestions(true)}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
         placeholder="Başlık yaz..."
