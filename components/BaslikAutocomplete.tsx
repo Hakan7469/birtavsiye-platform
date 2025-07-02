@@ -18,7 +18,7 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
       }
 
       const { data, error } = await supabase
-        .from("basliklar")
+        .from("recommendations")
         .select("title")
         .ilike("title", `%${searchTerm}%`)
         .limit(10);
