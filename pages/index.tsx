@@ -2,19 +2,14 @@ import { useEffect, useState } from "react";
 import BaslikAutocomplete from "../components/BaslikAutocomplete";
 import EntryForm from "../components/EntryForm";
 import RecommendationCard from "../components/RecommendationCard";
-import { createClient } from "@supabase/supabase-js";
-
-// Supabase bağlantısı
-const supabase = createClient(
-  "https://ypyadzojzjjmldtosnhm.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-);
+import { supabase } from "../lib/supabaseClient";
 
 type Entry = {
-  id: number;
-  content: string;
+  id: string;
   title: string;
+  content: string;
   author: string;
+  created_at?: string;
 };
 
 export default function HomePage() {
@@ -24,12 +19,13 @@ export default function HomePage() {
   useEffect(() => {
     const fetchEntries = async () => {
       if (!title) return;
+      console.log("Aktif başlık:", title);
 
       const { data, error } = await supabase
-        .from("entries")
+        .from("recommendations")
         .select("*")
         .eq("title", title)
-        .order("id", { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (!error && data) {
         setEntries(data as Entry[]);
@@ -42,9 +38,7 @@ export default function HomePage() {
   }, [title]);
 
   const handleSubmit = async (content: string) => {
-    await supabase.from("basliklar").upsert([{ title }]);
-
-    const { error } = await supabase.from("entries").insert([
+    const { error } = await supabase.from("recommendations").insert([
       {
         content,
         title,
@@ -53,8 +47,9 @@ export default function HomePage() {
     ]);
 
     if (!error) {
+      console.log("Yeni kayıt eklendi");
       setEntries((prev) => [
-        { id: Date.now(), content, title, author: "hakan" },
+        { id: Date.now().toString(), content, title, author: "hakan" },
         ...prev,
       ]);
     } else {
