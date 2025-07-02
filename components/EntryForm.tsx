@@ -1,3 +1,4 @@
+import BaslikAutocomplete from './BaslikAutocomplete';
 // components/EntryForm.tsx
 
 import { useState } from 'react';
@@ -44,7 +45,7 @@ export default function EntryForm() {
     <form onSubmit={handleSubmit} className="space-y-4 p-4 max-w-xl mx-auto">
       <h2 className="text-2xl font-bold">Yeni Tavsiye Ekle</h2>
 
-      <input
+      <BaslikAutocomplete onSelect={(value) => setTitle(value)} />
         type="text"
         placeholder="Başlık"
         value={title}
