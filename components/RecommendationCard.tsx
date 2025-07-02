@@ -10,10 +10,10 @@ export default function RecommendationCard({
   author,
 }: RecommendationCardProps) {
   return (
-    <div className="bg-white p-4 rounded-lg border shadow-sm">
-      <div className="text-sm text-gray-600">Başlık: {title}</div>
-      <div className="text-gray-800 my-2">{content}</div>
-      <div className="text-right text-sm text-gray-500">— {author}</div>
+    <div className="bg-white border rounded p-4 shadow-sm">
+      <div className="text-sm text-gray-500 mb-1">Başlık: {title}</div>
+      <p className="text-gray-800 whitespace-pre-line">{content}</p>
+      <div className="text-xs text-gray-400 mt-2 text-right">Yazan: {author}</div>
     </div>
   );
 }
