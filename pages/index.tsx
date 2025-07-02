@@ -21,6 +21,9 @@ export default function HomePage() {
   const [title, setTitle] = useState("");
   const [entries, setEntries] = useState<Entry[]>([]);
 
+  // LOG: Şu anki seçili başlık
+  console.log("Aktif başlık:", title);
+
   // Seçilen başlığa ait entry'leri Supabase'den getir
   useEffect(() => {
     const fetchEntries = async () => {
@@ -52,7 +55,7 @@ export default function HomePage() {
       {
         content,
         title,
-        author: "hakan", // Giriş sistemi geldiğinde dinamik olacak
+        author: "hakan",
       },
     ]);
 
@@ -72,7 +75,12 @@ export default function HomePage() {
         <h1 className="text-3xl font-bold text-gray-800 text-center">birTavsiye</h1>
 
         <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <BaslikAutocomplete onSelect={(value) => setTitle(value)} />
+          <BaslikAutocomplete
+            onSelect={(value) => {
+              console.log("Autocomplete seçildi:", value);
+              setTitle(value);
+            }}
+          />
         </div>
 
         {title && (
