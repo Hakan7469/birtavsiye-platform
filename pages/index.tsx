@@ -30,23 +30,24 @@ export default function HomePage() {
         .eq("title", title)
         .order("id", { ascending: false });
 
-      if (error) {
+      if (!error) {
+        setEntries(data as Entry[]);
+      } else {
         console.error("Entry fetch error:", error.message);
-        return;
       }
-
-      setEntries(data as Entry[]);
     };
 
     fetchEntries();
   }, [title]);
 
   const handleSubmit = async (content: string) => {
+    await supabase.from("basliklar").upsert([{ title }]);
+
     const { error } = await supabase.from("entries").insert([
       {
         content,
         title,
-        author: "hakan", // Burayı dinamik yapacağız
+        author: "hakan",
       },
     ]);
 
@@ -61,28 +62,37 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4 space-y-4">
-      <h1 className="text-2xl font-bold mb-2">Bir Tavsiye</h1>
-      <BaslikAutocomplete onSelect={(value) => setTitle(value)} />
+    <div className="w-full min-h-screen bg-[#f8f9fa] flex justify-center px-6 py-8">
+      <div className="w-full max-w-[960px] space-y-6">
+        <h1 className="text-3xl font-bold text-gray-800 text-center">birTavsiye</h1>
 
-      {title && (
-        <>
-          <div className="text-gray-700 mt-4 font-medium">
-            Başlık: <span className="text-blue-700">{title}</span>
-          </div>
-          <EntryForm onSubmit={handleSubmit} />
-          <div className="space-y-4 mt-6">
-            {entries.map((entry) => (
-              <RecommendationCard
-                key={entry.id}
-                title={entry.title}
-                content={entry.content}
-                author={entry.author}
-              />
-            ))}
-          </div>
-        </>
-      )}
+        <div className="bg-white p-4 rounded-lg border shadow-sm">
+          <BaslikAutocomplete onSelect={(value) => setTitle(value)} />
+        </div>
+
+        {title && (
+          <>
+            <div className="text-xl font-semibold text-gray-700">
+              Başlık: <span className="text-blue-600">{title}</span>
+            </div>
+
+            <div className="bg-white p-4 rounded-lg border shadow-sm">
+              <EntryForm onSubmit={handleSubmit} />
+            </div>
+
+            <div className="space-y-4">
+              {entries.map((entry) => (
+                <RecommendationCard
+                  key={entry.id}
+                  title={entry.title}
+                  content={entry.content}
+                  author={entry.author}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
