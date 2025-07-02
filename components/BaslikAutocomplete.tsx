@@ -57,16 +57,13 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
           setShowSuggestions(true);
         }}
         onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            console.log("Enter detected", suggestions); // test çıktısı
-          }
+          console.log("key pressed:", e.key);
           if (e.key === "Enter" && suggestions.length > 0) {
             handleSelect(suggestions[0]);
             e.preventDefault();
           }
         }}
         onFocus={() => setShowSuggestions(true)}
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
         placeholder="Başlık yaz..."
       />
 
@@ -76,7 +73,7 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
             <li
               key={index}
               className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleSelect(title)}
+              onMouseDown={() => handleSelect(title)} // onClick değil!
             >
               {title}
             </li>
