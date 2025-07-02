@@ -4,7 +4,7 @@ import EntryForm from "../components/EntryForm";
 import RecommendationCard from "../components/RecommendationCard";
 import { createClient } from "@supabase/supabase-js";
 
-// Supabase client kurulumu
+// Supabase bağlantısı
 const supabase = createClient(
   "https://ypyadzojzjjmldtosnhm.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -21,7 +21,7 @@ export default function HomePage() {
   const [title, setTitle] = useState("");
   const [entries, setEntries] = useState<Entry[]>([]);
 
-  // Başlık değişince ilgili entry'leri Supabase'den çek
+  // Seçilen başlığa ait entry'leri Supabase'den getir
   useEffect(() => {
     const fetchEntries = async () => {
       if (!title) return;
@@ -42,16 +42,17 @@ export default function HomePage() {
     fetchEntries();
   }, [title]);
 
-  // Yeni entry gönderme işlemi
+  // Yeni öneri gönderimi
   const handleSubmit = async (content: string) => {
-    // Başlığı yoksa basliklar tablosuna ekle
+    // Başlık veritabanında yoksa ekle
     await supabase.from("basliklar").upsert([{ title }]);
 
+    // Yeni entry ekle
     const { error } = await supabase.from("entries").insert([
       {
         content,
         title,
-        author: "hakan", // Giriş sistemi eklendiğinde dinamik olacak
+        author: "hakan", // Giriş sistemi geldiğinde dinamik olacak
       },
     ]);
 
