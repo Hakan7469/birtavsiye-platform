@@ -11,7 +11,7 @@ type Entry = {
 
 export default function Home() {
   const [entries, setEntries] = useState<Entry[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/entries')
@@ -23,43 +23,42 @@ export default function Home() {
   }, []);
 
   const handleSubmit = async (entry: { title: string; content: string; author: string }) => {
-    const response = await fetch('/api/entries', {
+    const res = await fetch('/api/entries', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entry),
     });
 
-    if (response.ok) {
-      const newEntry = await response.json();
+    if (res.ok) {
+      const newEntry = await res.json();
       setEntries([newEntry, ...entries]);
     }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Bir Tavsiye Platformu</h1>
+
       <EntryForm onSubmit={handleSubmit} />
 
       {loading ? (
         <p className="mt-4 text-gray-600">Yükleniyor...</p>
       ) : (
-        <div className="mt-8">
-          <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="overflow-x-auto mt-8">
+          <table className="min-w-full table-auto border-collapse border border-gray-300">
             <thead className="bg-gray-100">
               <tr>
-                <th className="text-left py-3 px-4 font-bold">Başlık</th>
-                <th className="text-left py-3 px-4 font-bold">Tavsiye</th>
-                <th className="text-left py-3 px-4 font-bold">Yazar</th>
+                <th className="border border-gray-300 px-4 py-2 text-left font-bold">Başlık</th>
+                <th className="border border-gray-300 px-4 py-2 text-left font-bold">Tavsiye</th>
+                <th className="border border-gray-300 px-4 py-2 text-left font-bold">Yazar</th>
               </tr>
             </thead>
             <tbody>
               {entries.map((entry) => (
-                <tr key={entry.id} className="border-t">
-                  <td className="py-3 px-4 font-semibold">{entry.title}</td>
-                  <td className="py-3 px-4">{entry.content}</td>
-                  <td className="py-3 px-4 text-gray-600">{entry.author}</td>
+                <tr key={entry.id} className="hover:bg-gray-50">
+                  <td className="border border-gray-300 px-4 py-2 font-bold">{entry.title}</td>
+                  <td className="border border-gray-300 px-4 py-2">{entry.content}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-gray-600">{entry.author}</td>
                 </tr>
               ))}
             </tbody>
