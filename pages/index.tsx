@@ -1,5 +1,3 @@
-```typescript
-// pages/index.tsx
 import { useEffect, useState } from "react";
 import BaslikAutocomplete from "../components/BaslikAutocomplete";
 import EntryForm from "../components/EntryForm";
@@ -109,4 +107,3 @@ export default function HomePage() {
     </div>
   );
 }
-```
