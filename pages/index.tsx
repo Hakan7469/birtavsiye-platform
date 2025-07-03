@@ -1,70 +1,72 @@
 // pages/index.tsx
 import { useEffect, useState } from 'react';
-import EntryForm from '../components/EntryForm';
+import EntryForm from '@/components/EntryForm';
+import { Database } from '@/types/supabase';
+import Head from 'next/head';
 
-type Entry = {
-  id: number;
-  title: string;
-  content: string;
-  author: string;
-};
+type Recommendation = Database['public']['Tables']['recommendations']['Row'];
 
 export default function Home() {
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [entries, setEntries] = useState<Recommendation[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchEntries = async () => {
+    setLoading(true);
+    const res = await fetch('/api/entries');
+    const data = await res.json();
+    setEntries(data);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    fetch('/api/entries')
-      .then((res) => res.json())
-      .then((data) => {
-        setEntries(data);
-        setLoading(false);
-      });
+    fetchEntries();
   }, []);
 
-  const handleSubmit = async (entry: { title: string; content: string; author: string }) => {
+  const handleSubmit = async (entry: {
+    title: string;
+    content: string;
+    author: string;
+  }) => {
     const res = await fetch('/api/entries', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(entry),
     });
 
     if (res.ok) {
-      const newEntry = await res.json();
-      setEntries([newEntry, ...entries]);
+      fetchEntries();
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Bir Tavsiye Platformu</h1>
-
-      <EntryForm onSubmit={handleSubmit} />
-
-      {loading ? (
-        <p className="mt-4 text-gray-600">Yükleniyor...</p>
-      ) : (
-        <div className="overflow-x-auto mt-8">
-          <table className="min-w-full table-auto border-collapse border border-gray-300">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border border-gray-300 px-4 py-2 text-left font-bold">Başlık</th>
-                <th className="border border-gray-300 px-4 py-2 text-left font-bold">Tavsiye</th>
-                <th className="border border-gray-300 px-4 py-2 text-left font-bold">Yazar</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((entry) => (
-                <tr key={entry.id} className="hover:bg-gray-50">
-                  <td className="border border-gray-300 px-4 py-2 font-bold">{entry.title}</td>
-                  <td className="border border-gray-300 px-4 py-2">{entry.content}</td>
-                  <td className="border border-gray-300 px-4 py-2 text-gray-600">{entry.author}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="min-h-screen bg-gray-100 p-4">
+      <Head>
+        <title>Bir Tavsiye</title>
+      </Head>
+      <main className="max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-8">Bir Tavsiye</h1>
+        <div className="bg-white p-4 rounded-lg border shadow-sm mb-6">
+          <EntryForm onSubmit={handleSubmit} />
         </div>
-      )}
+        {loading ? (
+          <p className="text-center">Yükleniyor...</p>
+        ) : (
+          <div className="space-y-4">
+            {entries.map((entry) => (
+              <div
+                key={entry.id}
+                className="bg-white p-4 rounded-lg border shadow-sm"
+              >
+                <h2 className="text-lg font-bold">{entry.title}</h2>
+                <p className="mt-2">{entry.content}</p>
+                <p className="text-sm text-gray-500 mt-2">— {entry.author}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 }
