@@ -1,91 +1,55 @@
+// pages/index.tsx
+
 import { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import EntryForm from '@/components/EntryForm';
+import EntryForm from '../components/EntryForm';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-interface Recommendation {
-  id: string;
+interface Entry {
+  id: number;
   title: string;
-  author: string;
   content: string;
-  created_at: string;
+  author: string;
 }
 
 export default function Home() {
-  const [entries, setEntries] = useState<Recommendation[]>([]);
+  const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const fetchEntries = async () => {
+    const response = await fetch('/api/entries');
+    const data = await response.json();
+    setEntries(data);
+  };
 
   useEffect(() => {
     fetchEntries();
   }, []);
 
-  const fetchEntries = async () => {
+  const handleSubmit = async (entry: { title: string; content: string; author: string }) => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('recommendations')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Veri çekme hatası:', error);
-    } else {
-      setEntries(data || []);
-    }
-
+    await fetch('/api/entries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry),
+    });
     setLoading(false);
-  };
-
-  const handleSubmit = async (entry: {
-    title: string;
-    author: string;
-    content: string;
-  }) => {
-    const { title, author, content } = entry;
-
-    const { data, error } = await supabase.from('recommendations').insert([
-      {
-        title,
-        author,
-        content,
-      },
-    ]);
-
-    if (error) {
-      console.error('Kayıt hatası:', error);
-    } else {
-      fetchEntries(); // listeyi güncelle
-    }
+    fetchEntries();
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">Bir Tavsiye</h1>
-
-      <div className="bg-white p-4 rounded-lg border shadow-sm mb-6">
+    <div className="max-w-2xl mx-auto p-4 space-y-6">
+      <div className="bg-white p-4 rounded-lg border shadow-sm">
         <EntryForm onSubmit={handleSubmit} />
+        {loading && <p className="text-sm text-gray-500 mt-2">Yükleniyor...</p>}
       </div>
 
       <div className="space-y-4">
-        {loading ? (
-          <p>Yükleniyor...</p>
-        ) : entries.length === 0 ? (
-          <p>Henüz tavsiye eklenmedi.</p>
-        ) : (
-          entries.map((entry) => (
-            <div
-              key={entry.id}
-              className="p-4 border rounded shadow-sm bg-white"
-            >
-              <h2 className="font-semibold text-lg">{entry.title}</h2>
-              <p className="text-gray-800 mt-1 whitespace-pre-line">{entry.content}</p>
-              <p className="text-sm text-gray-500 mt-2">— {entry.author}</p>
-            </div>
-          ))
-        )}
+        {entries.map((entry) => (
+          <div key={entry.id} className="bg-white p-4 rounded-lg border shadow-sm">
+            <h3 className="text-lg font-bold">{entry.title}</h3>
+            <p className="text-gray-700 whitespace-pre-wrap">{entry.content}</p>
+            <p className="text-sm text-gray-500 mt-2">Yazan: {entry.author}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
