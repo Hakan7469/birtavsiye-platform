@@ -1,8 +1,8 @@
 // pages/index.tsx
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import EntryForm from "@/components/EntryForm";
+import { useEffect, useState } from 'react';
+import Head from 'next/head';
+import EntryForm from '../components/EntryForm';
 
 interface Entry {
   id: number;
@@ -16,65 +16,57 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchEntries();
+    fetch('/api/entries')
+      .then((res) => res.json())
+      .then((data) => {
+        setEntries(data);
+        setLoading(false);
+      });
   }, []);
 
-  async function fetchEntries() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("entries")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const handleSubmit = async (entry: { content: string; author: string }) => {
+    const res = await fetch('/api/entries', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(entry),
+    });
 
-    if (error) {
-      console.error("Error fetching entries:", error);
-    } else {
-      setEntries(data || []);
+    if (res.ok) {
+      const newEntry: Entry = await res.json();
+      setEntries((prev) => [newEntry, ...prev]);
     }
-
-    setLoading(false);
-  }
-
-  async function handleSubmit(entry: { content: string; author: string }) {
-    const { data, error } = await supabase
-      .from("entries")
-      .insert([entry])
-      .select();
-
-    if (error) {
-      console.error("Error inserting entry:", error);
-    } else if (data) {
-      setEntries((prev) => [data[0], ...prev]);
-    }
-  }
+  };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
-        Bir Tavsiye
-      </h1>
+    <div className="min-h-screen bg-gray-100 text-gray-900">
+      <Head>
+        <title>Bir Tavsiye Platformu</title>
+      </Head>
 
-      <div className="bg-white p-4 rounded-lg border shadow-sm mb-6">
-        <EntryForm onSubmit={handleSubmit} />
-      </div>
+      <main className="max-w-3xl mx-auto py-10 px-4">
+        <h1 className="text-3xl font-bold mb-6">Bir Tavsiye Platformu</h1>
 
-      {loading ? (
-        <p className="text-center text-gray-500">Yükleniyor...</p>
-      ) : (
-        <div className="space-y-4">
-          {entries.map((entry) => (
-            <div
-              key={entry.id}
-              className="border p-4 rounded-md shadow-sm bg-gray-50"
-            >
-              <p className="text-gray-800 mb-2">{entry.content}</p>
-              <p className="text-sm text-gray-500 text-right">
-                — {entry.author}
-              </p>
-            </div>
-          ))}
+        <div className="mb-6">
+          <EntryForm onSubmit={handleSubmit} />
         </div>
-      )}
+
+        <div className="space-y-4">
+          {loading ? (
+            <p>Yükleniyor...</p>
+          ) : (
+            entries.map((entry) => (
+              <div key={entry.id} className="bg-white p-4 rounded-lg border shadow-sm">
+                <p className="text-gray-800 whitespace-pre-line">{entry.content}</p>
+                {entry.author && (
+                  <p className="text-sm text-gray-500 mt-2">— {entry.author}</p>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </main>
     </div>
   );
 }
