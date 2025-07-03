@@ -1,84 +1,67 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+// components/BaslikAutocomplete.tsx
+
+import { useEffect, useState } from "react"
+import { supabase } from "../lib/supabase"
 
 type BaslikAutocompleteProps = {
-  onSelect: (value: string) => void;
-};
+  onSelect: (value: string) => void
+}
 
 export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [basliklar, setBasliklar] = useState<string[]>([])
+  const [filtered, setFiltered] = useState<string[]>([])
+  const [input, setInput] = useState("")
 
   useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (searchTerm.length < 2) {
-        setSuggestions([]);
-        return;
-      }
-
+    const fetchTitles = async () => {
       const { data, error } = await supabase
-        .from("recommendations")
+        .from("entries")
         .select("title")
-        .ilike("title", `%${searchTerm}%`)
-        .limit(10);
 
-      if (error) {
-        console.error("Autocomplete error:", error.message);
-        return;
+      if (!error && data) {
+        const unique = Array.from(new Set(data.map((d) => d.title)))
+        setBasliklar(unique)
       }
+    }
 
-      const titles = data?.map((item) => item.title) || [];
-      setSuggestions(titles);
-    };
+    fetchTitles()
+  }, [])
 
-    fetchSuggestions();
-  }, [searchTerm]);
-
-  const handleSelect = (title: string) => {
-    setSearchTerm(title);
-    setShowSuggestions(false);
-    onSelect(title);
-  };
+  useEffect(() => {
+    if (!input) {
+      setFiltered([])
+      return
+    }
+    const f = basliklar.filter((b) => b.toLowerCase().includes(input.toLowerCase()))
+    setFiltered(f.slice(0, 10))
+  }, [input, basliklar])
 
   return (
-    <div className="relative">
+    <div className="relative w-full max-w-md">
       <input
         type="text"
-        className="border px-3 py-2 rounded w-full"
-        value={searchTerm}
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-          setShowSuggestions(true);
-        }}
-        onFocus={() => setShowSuggestions(true)}
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && suggestions.length > 0) {
-            handleSelect(suggestions[0]);
-            e.preventDefault();
-          }
-        }}
-        placeholder="Başlık yaz..."
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="başlık"
+        className="border px-2 py-1 w-full text-sm"
       />
-      {showSuggestions && suggestions.length > 0 && (
-        <ul className="absolute bg-white border w-full mt-1 max-h-48 overflow-auto rounded shadow">
-          {suggestions.map((title, index) => (
+      {filtered.length > 0 && (
+        <ul className="absolute z-10 w-full bg-white border mt-1 text-sm max-h-48 overflow-y-auto">
+          {filtered.map((b, i) => (
             <li
-              key={index}
-              className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleSelect(title)}
+              key={i}
+              onClick={() => {
+                onSelect(b)
+                setInput("")
+                setFiltered([])
+              }}
+              className="px-2 py-1 hover:bg-yellow-100 cursor-pointer"
             >
-              {title}
+              {b}
             </li>
           ))}
         </ul>
       )}
-      {showSuggestions && searchTerm.length >= 2 && suggestions.length === 0 && (
-        <div className="absolute bg-white border w-full mt-1 px-3 py-2 text-gray-500">
-          Yeni başlık ekle: <strong>{searchTerm}</strong>
-        </div>
-      )}
     </div>
-  );
+  )
 }
