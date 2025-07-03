@@ -1,45 +1,58 @@
-import { useState } from "react";
+// components/EntryForm.tsx
 
-type Props = {
+import { useState } from 'react';
+
+interface EntryFormProps {
   onSubmit: (entry: { content: string; author: string }) => void;
-};
+}
 
-export default function EntryForm({ onSubmit }: Props) {
-  const [content, setContent] = useState("");
-  const [author, setAuthor] = useState("");
+export default function EntryForm({ onSubmit }: EntryFormProps) {
+  const [content, setContent] = useState('');
+  const [author, setAuthor] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || !author.trim()) return;
-
+    if (!content.trim()) return;
     onSubmit({ content, author });
-    setContent("");
-    setAuthor("");
+    setContent('');
+    setAuthor('');
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <textarea
-        placeholder="Tavsiyeni yaz..."
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        className="w-full border rounded p-2 resize-none"
-        rows={4}
-        required
-      />
-      <input
-        type="text"
-        placeholder="Yazar adı (anon olabilir)"
-        value={author}
-        onChange={(e) => setAuthor(e.target.value)}
-        className="w-full border rounded p-2"
-        required
-      />
+      <div>
+        <label htmlFor="author" className="block text-sm font-medium text-gray-700">
+          Yazar
+        </label>
+        <input
+          id="author"
+          type="text"
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          placeholder="Adınızı yazın (isteğe bağlı)"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+          Tavsiye
+        </label>
+        <textarea
+          id="content"
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          rows={4}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Tavsiyenizi buraya yazın..."
+        />
+      </div>
+
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
       >
-        Tavsiyeyi Gönder
+        Gönder
       </button>
     </form>
   );
