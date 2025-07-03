@@ -3,56 +3,57 @@
 import { useState } from 'react';
 
 interface EntryFormProps {
-  onSubmit: (entry: { content: string; author: string }) => void;
+  onSubmit: (entry: { title: string; author: string; content: string }) => void;
 }
 
 export default function EntryForm({ onSubmit }: EntryFormProps) {
-  const [content, setContent] = useState('');
+  const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
+  const [content, setContent] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) return;
-    onSubmit({ content, author });
-    setContent('');
+    if (!title.trim() || !content.trim()) return;
+
+    setLoading(true);
+    await onSubmit({ title, author, content });
+    setLoading(false);
+
+    setTitle('');
     setAuthor('');
+    setContent('');
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="author" className="block text-sm font-medium text-gray-700">
-          Yazar
-        </label>
-        <input
-          id="author"
-          type="text"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          placeholder="Adınızı yazın (isteğe bağlı)"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-          Tavsiye
-        </label>
-        <textarea
-          id="content"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-          rows={4}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Tavsiyenizi buraya yazın..."
-        />
-      </div>
-
+      <input
+        type="text"
+        placeholder="Başlık"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="w-full border rounded px-3 py-2"
+      />
+      <input
+        type="text"
+        placeholder="Yazar"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+        className="w-full border rounded px-3 py-2"
+      />
+      <textarea
+        placeholder="Tavsiyenizi yazın..."
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        className="w-full border rounded px-3 py-2"
+        rows={4}
+      />
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        disabled={loading}
       >
-        Gönder
+        {loading ? 'Yükleniyor...' : 'Gönder'}
       </button>
     </form>
   );
