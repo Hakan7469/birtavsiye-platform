@@ -1,5 +1,3 @@
-// components/EntryForm.tsx
-
 import { useState } from 'react';
 
 interface EntryFormProps {
@@ -14,15 +12,12 @@ export default function EntryForm({ onSubmit }: EntryFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) return;
-
     setLoading(true);
     await onSubmit({ title, author, content });
-    setLoading(false);
-
     setTitle('');
     setAuthor('');
     setContent('');
+    setLoading(false);
   };
 
   return (
@@ -32,25 +27,24 @@ export default function EntryForm({ onSubmit }: EntryFormProps) {
         placeholder="Başlık"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full border rounded px-3 py-2"
+        className="w-full border px-2 py-1"
       />
       <input
         type="text"
         placeholder="Yazar"
         value={author}
         onChange={(e) => setAuthor(e.target.value)}
-        className="w-full border rounded px-3 py-2"
+        className="w-full border px-2 py-1"
       />
       <textarea
         placeholder="Tavsiyenizi yazın..."
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="w-full border rounded px-3 py-2"
-        rows={4}
+        className="w-full border px-2 py-1"
       />
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        className="px-4 py-2 bg-blue-500 text-white rounded"
         disabled={loading}
       >
         {loading ? 'Yükleniyor...' : 'Gönder'}
