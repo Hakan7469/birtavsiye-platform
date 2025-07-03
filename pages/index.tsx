@@ -1,15 +1,14 @@
-// pages/index.tsx
-
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import EntryForm from '@/components/EntryForm';
 
-const supabaseUrl = 'https://ypyadzojzjjmldtosnhm.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // (kısaltıldı)
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-interface Entry {
-  id: number;
+interface Recommendation {
+  id: string;
   title: string;
   author: string;
   content: string;
@@ -17,38 +16,37 @@ interface Entry {
 }
 
 export default function Home() {
-  const [entries, setEntries] = useState<Entry[]>([]);
+  const [entries, setEntries] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const fetchEntries = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('entries')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Veriler alınamadı:', error.message);
-    } else {
-      setEntries(data as Entry[]);
-    }
-    setLoading(false);
-  };
 
   useEffect(() => {
     fetchEntries();
   }, []);
 
-  const handleSubmit = async ({
-    title,
-    author,
-    content,
-  }: {
+  const fetchEntries = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('recommendations')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Veri çekme hatası:', error);
+    } else {
+      setEntries(data || []);
+    }
+
+    setLoading(false);
+  };
+
+  const handleSubmit = async (entry: {
     title: string;
     author: string;
     content: string;
   }) => {
-    const { error } = await supabase.from('entries').insert([
+    const { title, author, content } = entry;
+
+    const { data, error } = await supabase.from('recommendations').insert([
       {
         title,
         author,
@@ -57,17 +55,17 @@ export default function Home() {
     ]);
 
     if (error) {
-      console.error('Ekleme hatası:', error.message);
+      console.error('Kayıt hatası:', error);
     } else {
-      fetchEntries();
+      fetchEntries(); // listeyi güncelle
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
+    <div className="max-w-2xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-center">Bir Tavsiye</h1>
 
-      <div className="mb-10 bg-white p-4 rounded-lg border shadow-sm">
+      <div className="bg-white p-4 rounded-lg border shadow-sm mb-6">
         <EntryForm onSubmit={handleSubmit} />
       </div>
 
@@ -78,10 +76,13 @@ export default function Home() {
           <p>Henüz tavsiye eklenmedi.</p>
         ) : (
           entries.map((entry) => (
-            <div key={entry.id} className="bg-white p-4 rounded-lg border">
-              <h2 className="text-xl font-semibold">{entry.title}</h2>
-              <p className="text-gray-700 whitespace-pre-line mt-2">{entry.content}</p>
-              <p className="text-sm text-gray-500 mt-2">— {entry.author || 'Anonim'}</p>
+            <div
+              key={entry.id}
+              className="p-4 border rounded shadow-sm bg-white"
+            >
+              <h2 className="font-semibold text-lg">{entry.title}</h2>
+              <p className="text-gray-800 mt-1 whitespace-pre-line">{entry.content}</p>
+              <p className="text-sm text-gray-500 mt-2">— {entry.author}</p>
             </div>
           ))
         )}
