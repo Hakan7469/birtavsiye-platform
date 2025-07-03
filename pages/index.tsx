@@ -1,72 +1,91 @@
 // pages/index.tsx
 
 import { useEffect, useState } from 'react';
-import Head from 'next/head';
-import EntryForm from '../components/EntryForm';
+import { createClient } from '@supabase/supabase-js';
+import EntryForm from '@/components/EntryForm';
+
+const supabaseUrl = 'https://ypyadzojzjjmldtosnhm.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // (kısaltıldı)
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Entry {
   id: number;
-  content: string;
+  title: string;
   author: string;
+  content: string;
   created_at: string;
 }
 
 export default function Home() {
   const [entries, setEntries] = useState<Entry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const fetchEntries = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('entries')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Veriler alınamadı:', error.message);
+    } else {
+      setEntries(data as Entry[]);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    fetch('/api/entries')
-      .then((res) => res.json())
-      .then((data) => {
-        setEntries(data);
-        setLoading(false);
-      });
+    fetchEntries();
   }, []);
 
-  const handleSubmit = async (entry: { content: string; author: string }) => {
-    const res = await fetch('/api/entries', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+  const handleSubmit = async ({
+    title,
+    author,
+    content,
+  }: {
+    title: string;
+    author: string;
+    content: string;
+  }) => {
+    const { error } = await supabase.from('entries').insert([
+      {
+        title,
+        author,
+        content,
       },
-      body: JSON.stringify(entry),
-    });
+    ]);
 
-    if (res.ok) {
-      const newEntry: Entry = await res.json();
-      setEntries((prev) => [newEntry, ...prev]);
+    if (error) {
+      console.error('Ekleme hatası:', error.message);
+    } else {
+      fetchEntries();
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900">
-      <Head>
-        <title>Bir Tavsiye Platformu</title>
-      </Head>
+    <div className="max-w-2xl mx-auto py-10 px-4">
+      <h1 className="text-3xl font-bold mb-6 text-center">Bir Tavsiye</h1>
 
-      <main className="max-w-3xl mx-auto py-10 px-4">
-        <h1 className="text-3xl font-bold mb-6">Bir Tavsiye Platformu</h1>
+      <div className="mb-10 bg-white p-4 rounded-lg border shadow-sm">
+        <EntryForm onSubmit={handleSubmit} />
+      </div>
 
-        <div className="mb-6">
-          <EntryForm onSubmit={handleSubmit} />
-        </div>
-
-        <div className="space-y-4">
-          {loading ? (
-            <p>Yükleniyor...</p>
-          ) : (
-            entries.map((entry) => (
-              <div key={entry.id} className="bg-white p-4 rounded-lg border shadow-sm">
-                <p className="text-gray-800 whitespace-pre-line">{entry.content}</p>
-                {entry.author && (
-                  <p className="text-sm text-gray-500 mt-2">— {entry.author}</p>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-      </main>
+      <div className="space-y-4">
+        {loading ? (
+          <p>Yükleniyor...</p>
+        ) : entries.length === 0 ? (
+          <p>Henüz tavsiye eklenmedi.</p>
+        ) : (
+          entries.map((entry) => (
+            <div key={entry.id} className="bg-white p-4 rounded-lg border">
+              <h2 className="text-xl font-semibold">{entry.title}</h2>
+              <p className="text-gray-700 whitespace-pre-line mt-2">{entry.content}</p>
+              <p className="text-sm text-gray-500 mt-2">— {entry.author || 'Anonim'}</p>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
