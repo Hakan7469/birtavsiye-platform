@@ -1,57 +1,50 @@
-// components/EntryTable.tsx
+'use client'
 
-import { supabase } from "../lib/supabase"
+import { Tavsiye } from '@/lib/types'
+import { formatDistanceToNow } from 'date-fns'
+import { tr } from 'date-fns/locale'
+import React from 'react'
 
-interface Tavsiye {
-  id: number
-  created_at: string
-  title: string
-  content: string
-  author: string
-  like: number
-  dislike: number
+interface EntryTableProps {
+  entries: Tavsiye[]
+  onVote: (id: number, type: 'like' | 'dislike') => void
 }
 
-export default function EntryTable({ entries }: { entries: Tavsiye[] }) {
-  const handleVote = async (id: number, type: "like" | "dislike") => {
-    const field = type === "like" ? "like" : "dislike"
-    const entry = entries.find((e) => e.id === id)
-    if (!entry) return
-
-    const { error } = await supabase
-      .from("entries")
-      .update({ [field]: entry[field] + 1 })
-      .eq("id", id)
-
-    if (error) console.error("Oy güncellenemedi:", error.message)
-    else window.location.reload()
-  }
-
+export default function EntryTable({ entries, onVote }: EntryTableProps) {
   return (
-    <div className="space-y-6 text-sm">
+    <div className="space-y-4 text-sm">
       {entries.map((entry, i) => (
-        <div key={entry.id} className="border-b border-gray-300 pb-3">
-          <div className="mb-1">
-            <span className="font-medium">{i + 1}-</span>{" "}
-            {entry.content}
+        <div
+          key={entry.id}
+          className="border border-gray-300 rounded-xl shadow-sm p-4 bg-white"
+        >
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-gray-500 font-semibold">
+              {i + 1}.
+            </span>
+            <span className="text-xs text-gray-400">
+              {formatDistanceToNow(new Date(entry.created_at), {
+                addSuffix: true,
+                locale: tr,
+              })}
+            </span>
           </div>
-          <div className="flex items-center text-xs text-gray-600 space-x-4">
+
+          <div className="mb-3 text-gray-800">{entry.content}</div>
+
+          <div className="flex items-center space-x-4 text-xs text-gray-600">
             <button
-              onClick={() => handleVote(entry.id, "like")}
-              className="px-2 py-0.5 border rounded hover:bg-blue-100"
+              onClick={() => onVote(entry.id, 'like')}
+              className="hover:text-green-600 transition"
             >
               👍 {entry.like}
             </button>
             <button
-              onClick={() => handleVote(entry.id, "dislike")}
-              className="px-2 py-0.5 border rounded hover:bg-red-100"
+              onClick={() => onVote(entry.id, 'dislike')}
+              className="hover:text-red-600 transition"
             >
               👎 {entry.dislike}
             </button>
-            <div className="ml-auto flex space-x-2 text-gray-500">
-              <span>{entry.created_at?.split("T")[0]}</span>
-              <span className="italic">{entry.author}</span>
-            </div>
           </div>
         </div>
       ))}
