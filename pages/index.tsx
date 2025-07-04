@@ -5,7 +5,7 @@ import Sidebar from '@/components/Sidebar';
 import EntryList from '@/components/EntryList';
 import EntryForm from '@/components/EntryForm';
 import SearchBox from '@/components/SearchBox';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 import { Database } from '@/types/supabase';
 
 type Entry = Database['public']['Tables']['recommendations']['Row'];
