@@ -1,44 +1,69 @@
+// components/EntryForm.tsx
+
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/types/supabase';
-type Entry = Database['public']['Tables']['entries']['Row'];
+
+type Entry = Database['public']['Tables']['recommendations']['Row'];
 
 interface Props {
   onEntryCreated: (entry: Entry) => void;
-  title: string;
 }
 
-export default function EntryForm({ onEntryCreated, title }: Props) {
+export default function EntryForm({ onEntryCreated }: Props) {
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [author, setAuthor] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const { data, error } = await supabase
-      .from('entries')
-      .insert([{ title, content }])
+      .from('recommendations')
+      .insert([{ title, content, author }])
       .select()
       .single();
 
     if (error) {
-      console.error('Hata:', error.message);
-    } else if (data) {
-      onEntryCreated(data);
-      setContent('');
+      console.error('Entry insert error:', error);
+      return;
     }
+
+    onEntryCreated(data);
+    setTitle('');
+    setContent('');
+    setAuthor('');
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2 mt-4">
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        className="w-full border rounded p-2"
-        rows={3}
-        placeholder="Tavsiyeni yaz..."
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <input
+        type="text"
+        placeholder="Başlık"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="w-full border px-2 py-1 rounded"
         required
       />
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-        Gönder
+      <textarea
+        placeholder="Tavsiye içeriği"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        className="w-full border px-2 py-1 rounded"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Yazar (isteğe bağlı)"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+        className="w-full border px-2 py-1 rounded"
+      />
+      <button
+        type="submit"
+        className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
+      >
+        Ekle
       </button>
     </form>
   );
