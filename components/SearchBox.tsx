@@ -1,26 +1,24 @@
-import React from "react";
+// components/SearchBox.tsx
 
-export interface SearchBoxProps {
+interface SearchBoxProps {
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (value: string) => void;
   onSearch: () => void;
 }
 
-const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, onSearch }) => {
+export default function SearchBox({ value, onChange, onSearch }: SearchBoxProps) {
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex gap-2">
       <input
         type="text"
         placeholder="Başlık ara..."
         value={value}
-        onChange={onChange}
-        className="border px-2 py-1 rounded w-48"
+        onChange={(e) => onChange(e.target.value)}
+        className="border px-2 py-1 rounded w-full"
       />
       <button onClick={onSearch} className="px-2 py-1 border rounded">
         Ara
       </button>
     </div>
   );
-};
-
-export default SearchBox;
+}
