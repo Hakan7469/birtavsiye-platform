@@ -1,4 +1,10 @@
-import { Json } from './supabase'; // Eğer supabase tipi buradaysa, doğru import edilir
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json }
+  | Json[];
 
 export type Tavsiye = {
   id: string;
