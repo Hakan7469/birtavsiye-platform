@@ -1,22 +1,24 @@
-import React from "react";
+// components/SearchBox.tsx
+
+import React from 'react';
 
 interface SearchBoxProps {
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (value: string) => void;
   onSearch: () => void;
 }
 
 const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, onSearch }) => {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center border px-2 py-1 rounded">
       <input
         type="text"
-        placeholder="Başlık ara..."
         value={value}
-        onChange={onChange}
-        className="border px-2 py-1 rounded w-64"
+        onChange={(e) => onChange(e.target.value)}
+        className="flex-1 outline-none text-sm"
+        placeholder="Başlık ara..."
       />
-      <button onClick={onSearch} className="px-3 py-1 border rounded">
+      <button onClick={onSearch} className="ml-2 text-sm text-blue-600">
         Ara
       </button>
     </div>
