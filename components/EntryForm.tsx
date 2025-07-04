@@ -1,35 +1,61 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabaseClient'; // Düzeltülmüş import yolu
+import { supabase } from '../lib/supabaseClient';
 import { Database } from '@/types/supabase';
 
 type Entry = Database['public']['Tables']['recommendations']['Row'];
 
-export default function EntryForm() {
+type Props = {
+  onEntryCreated?: (newEntry: Entry) => void;
+};
+
+const EntryForm: React.FC<Props> = ({ onEntryCreated }) => {
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const { data, error } = await supabase
       .from('recommendations')
-      .insert({ content })
-      .select();
-    if (error) setError(error.message);
-    else setContent('');
+      .insert([{ title, content }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Entry creation failed:', error.message);
+      return;
+    }
+
+    if (data) {
+      onEntryCreated?.(data);
+      setTitle('');
+      setContent('');
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        className="w-full p-2 border"
-        placeholder="Tavsiyenizi yazın..."
+      <input
+        type="text"
+        placeholder="Başlık"
+        value={title || ''}
+        onChange={(e) => setTitle(e.target.value)}
+        className="w-full p-2 border rounded"
       />
-      <button type="submit" className="px-4 py-2 bg-blue-500 text-white">
+      <textarea
+        placeholder="Tavsiyenizi yazın..."
+        value={content || ''}
+        onChange={(e) => setContent(e.target.value)}
+        className="w-full p-2 border rounded"
+      />
+      <button
+        type="submit"
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
         Gönder
       </button>
-      {error && <p className="text-red-500">{error}</p>}
     </form>
   );
-}
+};
+
+export default EntryForm;
