@@ -1,65 +1,75 @@
-// pages/index.tsx
+import Head from 'next/head'
+import Sidebar from '@/components/Sidebar'
+import EntryList from '@/components/EntryList'
+import EntryForm from '@/components/EntryForm'
+import SearchBox from '@/components/SearchBox'
+import { useState } from 'react'
+import EntryTable from '@/components/EntryTable'
 
-import { useEffect, useState } from "react";
-import Sidebar from "@/components/Sidebar";
-import EntryList from "@/components/EntryList";
-import EntryForm from "@/components/EntryForm";
-import SearchBox from "@/components/SearchBox";
-import { supabase } from "@/lib/supabase";
-import { Database } from "@/types/supabase";
+interface Tavsiye {
+  id: string
+  title: string | null
+  content: string | null
+  author: string | null
+  created_at: string | null
+  like: number
+  dislike: number
+}
 
-type Entry = Database["public"]["Tables"]["recommendations"]["Row"];
+export default function Home() {
+  const [entries, setEntries] = useState<Tavsiye[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
 
-export default function HomePage() {
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [title, setTitle] = useState("");
+  const handleEntryCreated = (entry: Tavsiye) => {
+    setEntries((prev) => [entry, ...prev])
+  }
 
-  useEffect(() => {
-    fetchEntries();
-  }, []);
+  const handleVote = (id: string, type: 'like' | 'dislike') => {
+    setEntries((prev) =>
+      prev.map((entry) =>
+        entry.id === id
+          ? {
+              ...entry,
+              like: type === 'like' ? entry.like + 1 : entry.like,
+              dislike: type === 'dislike' ? entry.dislike + 1 : entry.dislike,
+            }
+          : entry
+      )
+    )
+  }
 
-  const fetchEntries = async () => {
-    const { data, error } = await supabase
-      .from("recommendations")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) console.error("Error fetching entries:", error);
-    else setEntries(data || []);
-  };
-
-  const handleEntryCreated = (entry: Entry) => {
-    setEntries((prev) => [entry, ...prev]);
-  };
-
-  const handleSearch = async () => {
-    const { data, error } = await supabase
-      .from("recommendations")
-      .select("*")
-      .ilike("title", `%${title}%`)
-      .order("created_at", { ascending: false });
-
-    if (error) console.error("Search error:", error);
-    else setEntries(data || []);
-  };
+  const filteredEntries = entries.filter(
+    (entry) =>
+      entry.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.content?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   return (
-    <div className="flex h-screen">
-      <div className="w-1/4 border-r overflow-y-auto">
-        <Sidebar />
-      </div>
-      <div className="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto">
-        <div className="flex justify-between items-center">
-          <div className="text-lg font-semibold">Bir Tavsiye</div>
-          <div className="flex items-center gap-2">
-            <SearchBox value={title} onChange={setTitle} onSearch={handleSearch} />
-            <button className="px-2 py-1 border rounded">giriş</button>
-            <button className="px-2 py-1 border rounded">kayıt ol</button>
+    <>
+      <Head>
+        <title>Bir Tavsiye</title>
+      </Head>
+      <main className="flex min-h-screen">
+        <aside className="w-64 border-r p-4 overflow-y-auto">
+          <Sidebar />
+        </aside>
+        <div className="flex-1 p-4 space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="text-lg font-semibold">Bir Tavsiye</div>
+            <div className="flex items-center gap-1">
+              <SearchBox
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onSearch={() => {}}
+              />
+              <button className="px-2 py-1 border rounded">giriş</button>
+              <button className="px-2 py-1 border rounded">kayıt ol</button>
+            </div>
           </div>
+          <EntryForm onEntryCreated={handleEntryCreated} />
+          <EntryTable entries={filteredEntries} onVote={handleVote} />
         </div>
-        <EntryForm onEntryCreated={handleEntryCreated} />
-        <EntryList entries={entries} />
-      </div>
-    </div>
-  );
+      </main>
+    </>
+  )
 }
