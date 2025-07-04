@@ -1,37 +1,20 @@
-import React from "react";
+import React from 'react';
+import { Database } from '@/types/supabase';
+type Entry = Database['public']['Tables']['entries']['Row'];
 
-interface Entry {
-  id: number;
-  content: string;
-  author: string;
-  timestamp: string;
-}
-
-interface EntryListProps {
+interface Props {
   entries: Entry[];
 }
 
-const EntryList: React.FC<EntryListProps> = ({ entries }) => {
+export default function EntryList({ entries }: Props) {
   return (
-    <div className="border mt-4">
-      {entries.map((entry, index) => (
-        <div
-          key={entry.id}
-          className="border-b px-4 py-2 text-sm flex justify-between"
-        >
-          <div>
-            <div className="font-medium">
-              {index + 1}- {entry.content}
-            </div>
-            <div className="text-blue-600 underline cursor-pointer text-xs">
-              like dislike
-            </div>
-          </div>
-          <div className="text-xs text-gray-500">{entry.timestamp}</div>
+    <div className="space-y-4 mt-4">
+      {entries.map((entry) => (
+        <div key={entry.id} className="border p-4 rounded shadow">
+          <div className="text-gray-500 text-sm">{entry.title}</div>
+          <div className="text-base">{entry.content}</div>
         </div>
       ))}
     </div>
   );
-};
-
-export default EntryList;
+}
