@@ -1,6 +1,8 @@
+// /types/supabase.ts
+
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       recommendations: {
@@ -15,6 +17,8 @@ export interface Database {
           is_flagged: boolean | null;
           is_reviewed: boolean | null;
           review_notes: string | null;
+          like: number;
+          dislike: number;
         };
         Insert: {
           id?: string;
@@ -27,6 +31,8 @@ export interface Database {
           is_flagged?: boolean | null;
           is_reviewed?: boolean | null;
           review_notes?: string | null;
+          like?: number;
+          dislike?: number;
         };
         Update: {
           id?: string;
@@ -39,6 +45,8 @@ export interface Database {
           is_flagged?: boolean | null;
           is_reviewed?: boolean | null;
           review_notes?: string | null;
+          like?: number;
+          dislike?: number;
         };
       };
     };
@@ -46,4 +54,4 @@ export interface Database {
     Functions: {};
     Enums: {};
   };
-}
+};
