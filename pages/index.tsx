@@ -1,52 +1,47 @@
-import { useEffect, useState } from 'react';
-import Sidebar from '@/components/Sidebar';
-import EntryList from '@/components/EntryList';
-import EntryForm from '@/components/EntryForm';
-import SearchBox from '@/components/SearchBox';
-import { supabase } from '@/lib/supabase';
-import { Database } from '@/types/supabase';
-type Entry = Database['public']['Tables']['entries']['Row'];
+import Sidebar from "@/components/Sidebar";
+import EntryList from "@/components/EntryList";
+import EntryForm from "@/components/EntryForm";
+import SearchBox from "@/components/SearchBox";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [title, setTitle] = useState('');
-  const [search, setSearch] = useState('');
+  const [title, setTitle] = useState("");
+  const [search, setSearch] = useState("");
+  const [topics, setTopics] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchEntries = async () => {
-      const { data, error } = await supabase
-        .from('entries')
-        .select('*')
-        .eq('title', title)
-        .order('created_at', { ascending: false });
-
-      if (error) console.error('Hata:', error.message);
-      else setEntries(data);
+    const fetchTopics = async () => {
+      const res = await fetch("/api/topics");
+      const data = await res.json();
+      setTopics(data);
     };
+    fetchTopics();
+  }, []);
 
-    if (title) fetchEntries();
-  }, [title]);
-
-  const handleNewEntry = (entry: Entry) => {
-    setEntries((prev) => [entry, ...prev]);
+  const handleSearch = () => {
+    setTitle(search);
   };
 
   return (
-    <div className="flex min-h-screen">
-      <div className="w-1/4 border-r overflow-y-auto h-screen">
-        <Sidebar onSelectTitle={setTitle} />
+    <div className="flex">
+      <div className="w-1/4 h-screen overflow-y-auto border-r p-4">
+        <Sidebar topics={topics} onSelectTopic={setTitle} />
       </div>
       <div className="flex-1 p-4">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between mb-4">
           <div className="text-lg font-semibold">Bir Tavsiye</div>
           <div className="flex items-center gap-1">
-            <SearchBox value={search} onChange={setSearch} onSearch={setTitle} />
+            <SearchBox
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onSearch={handleSearch}
+            />
             <button className="px-2 py-1 border rounded">giriş</button>
             <button className="px-2 py-1 border rounded">kayıt ol</button>
           </div>
         </div>
-        <EntryForm onEntryCreated={handleNewEntry} title={title} />
-        <EntryList entries={entries} />
+        <EntryForm title={title} />
+        <EntryList title={title} />
       </div>
     </div>
   );
