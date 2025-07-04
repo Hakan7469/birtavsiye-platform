@@ -1,31 +1,31 @@
-import React from "react";
+// Üst kısımdaki useState import edilmeli
+import { useState } from "react";
 
-interface SearchBoxProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSearch: () => void;
-}
+// ...
 
-const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, onSearch }) => {
+export default function Home() {
+  const [searchValue, setSearchValue] = useState("");
+
+  const handleSearch = () => {
+    console.log("Arama yapılıyor:", searchValue);
+  };
+
   return (
-    <div className="flex space-x-2 text-sm mb-4">
-      <input
-        type="text"
-        placeholder="bir tavsiye ara"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="border px-2 py-1 w-64"
-      />
-      <button
-        onClick={onSearch}
-        className="border px-3 py-1 bg-gray-100 hover:bg-gray-200"
-      >
-        search
-      </button>
-      <button className="border px-2 py-1">giriş</button>
-      <button className="border px-2 py-1">kayıt ol</button>
-    </div>
+    <>
+      {/* ...diğer kodlar */}
+      <div className="flex justify-between items-center p-2 border-b text-sm">
+        <div className="text-lg font-semibold">Bir Tavsiye</div>
+        <div className="flex items-center gap-1">
+          <SearchBox
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onSearch={handleSearch}
+          />
+          <button className="px-2 py-1 border rounded">giriş</button>
+          <button className="px-2 py-1 border rounded">kayıt ol</button>
+        </div>
+      </div>
+      {/* ...diğer kodlar */}
+    </>
   );
-};
-
-export default SearchBox;
+}
