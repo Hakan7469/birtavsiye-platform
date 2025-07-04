@@ -1,11 +1,22 @@
-export interface Tavsiye {
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json }
+  | Json[];
+
+export type Tavsiye = {
   id: string;
-  title: string;
-  content: string;
-  author: string;
-  created_at: string;
-  highlighted_text: any;
-  is_flagged?: boolean;
-  is_reviewed?: boolean;
-  review_notes?: string;
-}
+  uuid: string | null;
+  title: string | null;
+  content: string | null;
+  author: string | null;
+  created_at: string | null;
+  highlighted_text: Json;
+  is_flagged: boolean | null;
+  is_reviewed: boolean | null;
+  review_notes: string | null;
+  like: number;
+  dislike: number;
+};

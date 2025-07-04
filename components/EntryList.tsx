@@ -1,15 +1,13 @@
-'use client';
-
 import React from 'react';
-import { Tavsiye } from '@/lib/types';
 import EntryTable from './EntryTable';
+import { Tavsiye } from '@/lib/types';
 
-interface Props {
+type EntryListProps = {
   entries: Tavsiye[];
-  onVote: (id: string, type: 'like' | 'dislike') => void;
-}
+  onVote: (entryId: string, type: 'like' | 'dislike') => void;
+};
 
-const EntryList: React.FC<Props> = ({ entries, onVote }) => {
+const EntryList: React.FC<EntryListProps> = ({ entries, onVote }) => {
   return (
     <div className="space-y-2">
       <EntryTable entries={entries} onVote={onVote} />
