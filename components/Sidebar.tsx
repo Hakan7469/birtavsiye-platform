@@ -5,21 +5,20 @@ interface SidebarProps {
   onSelectTopic: (topic: string) => void;
 }
 
-export default function Sidebar({ topics, onSelectTopic }: SidebarProps) {
+const Sidebar: React.FC<SidebarProps> = ({ topics, onSelectTopic }) => {
   return (
-    <div>
-      <div className="mb-2 font-semibold">Son Başlıklar</div>
-      <div className="max-h-[360px] overflow-y-auto">
-        {topics.slice(0, 30).map((topic, index) => (
-          <div
-            key={index}
-            className="cursor-pointer hover:underline text-sm py-1"
-            onClick={() => onSelectTopic(topic)}
-          >
-            {topic}
-          </div>
-        ))}
-      </div>
+    <div className="space-y-2 max-h-[450px] overflow-y-auto">
+      {topics.map((topic, index) => (
+        <div
+          key={index}
+          className="cursor-pointer hover:bg-gray-100 p-2 rounded"
+          onClick={() => onSelectTopic(topic)}
+        >
+          {topic}
+        </div>
+      ))}
     </div>
   );
-}
+};
+
+export default Sidebar;
