@@ -7,12 +7,12 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ topics, onSelectTopic }) => {
   return (
-    <div className="space-y-2 max-h-[450px] overflow-y-auto">
-      {topics.map((topic, index) => (
+    <div className="space-y-2 h-[600px] overflow-y-auto">
+      {topics.slice(0, 30).map((topic, index) => (
         <div
           key={index}
-          className="cursor-pointer hover:bg-gray-100 p-2 rounded"
           onClick={() => onSelectTopic(topic)}
+          className="cursor-pointer hover:bg-blue-100 px-2 py-1 rounded"
         >
           {topic}
         </div>
