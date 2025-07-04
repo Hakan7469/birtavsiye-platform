@@ -1,54 +1,45 @@
-// components/EntryForm.tsx
-
-import { useState } from "react"
-import { supabase } from "../lib/supabase"
+import React, { useState } from "react";
 
 interface EntryFormProps {
-  title: string
-  onSubmit: () => void
+  onSubmit: (entry: { content: string; author: string }) => void;
 }
 
-export default function EntryForm({ title, onSubmit }: EntryFormProps) {
-  const [author, setAuthor] = useState("")
-  const [content, setContent] = useState("")
+const EntryForm: React.FC<EntryFormProps> = ({ onSubmit }) => {
+  const [author, setAuthor] = useState("");
+  const [content, setContent] = useState("");
 
-  const handleSubmit = async () => {
-    if (!author || !content || !title) return
-
-    await supabase.from("entries").insert({
-      title,
-      author,
-      content,
-      like: 0,
-      dislike: 0,
-    })
-
-    setAuthor("")
-    setContent("")
-    onSubmit()
-  }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (content.trim()) {
+      onSubmit({ content, author });
+      setContent("");
+      setAuthor("");
+    }
+  };
 
   return (
-    <div className="flex flex-col space-y-2 mb-4 max-w-md">
+    <form onSubmit={handleSubmit} className="mb-4 space-y-2 text-sm">
       <input
         type="text"
-        placeholder="yazar"
+        placeholder="başlık"
         value={author}
         onChange={(e) => setAuthor(e.target.value)}
-        className="border px-2 py-1 text-sm"
+        className="border w-full px-2 py-1 text-sm"
       />
       <textarea
         placeholder="tavsiyenizi yazın"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="border px-2 py-1 text-sm"
-      ></textarea>
+        className="border w-full px-2 py-1 text-sm"
+      />
       <button
-        onClick={handleSubmit}
-        className="bg-black text-white px-4 py-1 w-fit text-sm"
+        type="submit"
+        className="bg-gray-100 hover:bg-gray-200 px-3 py-1 text-sm border"
       >
         Gönder
       </button>
-    </div>
-  )
-}
+    </form>
+  );
+};
+
+export default EntryForm;
