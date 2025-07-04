@@ -1,45 +1,45 @@
-import React, { useState } from "react";
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { Database } from '@/types/supabase';
+type Entry = Database['public']['Tables']['entries']['Row'];
 
-interface EntryFormProps {
-  onSubmit: (entry: { content: string; author: string }) => void;
+interface Props {
+  onEntryCreated: (entry: Entry) => void;
+  title: string;
 }
 
-const EntryForm: React.FC<EntryFormProps> = ({ onSubmit }) => {
-  const [author, setAuthor] = useState("");
-  const [content, setContent] = useState("");
+export default function EntryForm({ onEntryCreated, title }: Props) {
+  const [content, setContent] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (content.trim()) {
-      onSubmit({ content, author });
-      setContent("");
-      setAuthor("");
+    const { data, error } = await supabase
+      .from('entries')
+      .insert([{ title, content }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Hata:', error.message);
+    } else if (data) {
+      onEntryCreated(data);
+      setContent('');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 space-y-2 text-sm">
-      <input
-        type="text"
-        placeholder="başlık"
-        value={author}
-        onChange={(e) => setAuthor(e.target.value)}
-        className="border w-full px-2 py-1 text-sm"
-      />
+    <form onSubmit={handleSubmit} className="space-y-2 mt-4">
       <textarea
-        placeholder="tavsiyenizi yazın"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="border w-full px-2 py-1 text-sm"
+        className="w-full border rounded p-2"
+        rows={3}
+        placeholder="Tavsiyeni yaz..."
+        required
       />
-      <button
-        type="submit"
-        className="bg-gray-100 hover:bg-gray-200 px-3 py-1 text-sm border"
-      >
+      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
         Gönder
       </button>
     </form>
   );
-};
-
-export default EntryForm;
+}
