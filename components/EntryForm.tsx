@@ -1,5 +1,3 @@
-// components/EntryForm.tsx
-
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/types/supabase';
@@ -11,59 +9,44 @@ interface Props {
 }
 
 export default function EntryForm({ onEntryCreated }: Props) {
-  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [author, setAuthor] = useState('');
+  const [title, setTitle] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const { data, error } = await supabase
       .from('recommendations')
-      .insert([{ title, content, author }])
+      .insert([{ content, title }])
       .select()
       .single();
 
     if (error) {
-      console.error('Entry insert error:', error);
-      return;
+      console.error('Entry create error:', error);
+    } else if (data) {
+      onEntryCreated(data);
+      setContent('');
+      setTitle('');
     }
-
-    onEntryCreated(data);
-    setTitle('');
-    setContent('');
-    setAuthor('');
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-2">
       <input
         type="text"
-        placeholder="Başlık"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full border px-2 py-1 rounded"
-        required
+        placeholder="Başlık"
+        className="border rounded p-2 w-full"
       />
       <textarea
-        placeholder="Tavsiye içeriği"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="w-full border px-2 py-1 rounded"
-        required
+        placeholder="Tavsiyeni yaz..."
+        className="border rounded p-2 w-full"
       />
-      <input
-        type="text"
-        placeholder="Yazar (isteğe bağlı)"
-        value={author}
-        onChange={(e) => setAuthor(e.target.value)}
-        className="w-full border px-2 py-1 rounded"
-      />
-      <button
-        type="submit"
-        className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
-      >
-        Ekle
+      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+        Gönder
       </button>
     </form>
   );
