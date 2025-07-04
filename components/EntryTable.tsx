@@ -28,31 +28,33 @@ export default function EntryTable({ entries }: { entries: Tavsiye[] }) {
   }
 
   return (
-    <div className="space-y-4 text-sm">
+    <div className="space-y-6 text-sm">
       {entries.map((entry, i) => (
-        <div key={entry.id} className="border-b pb-2">
-          <div>
-            {i + 1}- {entry.content}
+        <div key={entry.id} className="border-b border-gray-300 pb-3">
+          <div className="mb-1">
+            <span className="font-medium">{i + 1}-</span>{" "}
+            {entry.content}
           </div>
-          <div className="flex items-center space-x-4 text-xs mt-1">
+          <div className="flex items-center text-xs text-gray-600 space-x-4">
             <button
               onClick={() => handleVote(entry.id, "like")}
-              className="text-blue-600 cursor-pointer"
+              className="px-2 py-0.5 border rounded hover:bg-blue-100"
             >
-              like ({entry.like})
+              👍 {entry.like}
             </button>
             <button
               onClick={() => handleVote(entry.id, "dislike")}
-              className="text-red-600 cursor-pointer"
+              className="px-2 py-0.5 border rounded hover:bg-red-100"
             >
-              dislike ({entry.dislike})
+              👎 {entry.dislike}
             </button>
-            <span className="ml-auto">{entry.created_at?.split("T")[0]}</span>
-            <span>{entry.author}</span>
+            <div className="ml-auto flex space-x-2 text-gray-500">
+              <span>{entry.created_at?.split("T")[0]}</span>
+              <span className="italic">{entry.author}</span>
+            </div>
           </div>
         </div>
       ))}
     </div>
   )
 }
-
