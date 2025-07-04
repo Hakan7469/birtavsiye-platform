@@ -1,7 +1,7 @@
 // components/BaslikAutocomplete.tsx
 
 import { useEffect, useState } from "react"
-import { supabase } from "../lib/supabase"
+import { supabase } from "../lib/supabaseClient"; // Düzeltülmüş import yolu
 
 type BaslikAutocompleteProps = {
   onSelect: (value: string) => void
