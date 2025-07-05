@@ -18,7 +18,7 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
         console.error("Hata:", error.message);
         return;
       }
-      if (data) {
+      if (data && Array.isArray(data)) {
         setSuggestions(data.map((item) => item.content as string));
       }
     };
