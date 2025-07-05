@@ -8,7 +8,7 @@ export interface Database {
           id: string;
           uuid: string | null;
           title: string | null;
-          content: string | null; // Bu sütun kritik
+          content: string | null; // Nullable, bu önemli
           author: string | null;
           created_at: string | null;
           highlighted_text: Json;
