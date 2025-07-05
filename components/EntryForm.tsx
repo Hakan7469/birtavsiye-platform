@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabaseClient";
 import { Database } from "@/types/supabase";
 
 type Entry = Database["public"]["Tables"]["recommendations"]["Row"];
+type InsertEntry = Database["public"]["Tables"]["recommendations"]["Insert"];
 
 type EntryFormProps = {
   onEntryCreated: (newEntry: Entry) => void;
@@ -15,21 +16,21 @@ const EntryForm: React.FC<EntryFormProps> = ({ onEntryCreated }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const newEntry: InsertEntry = {
+      title: title || null,
+      content: content || null,
+      uuid: null,
+      author: null,
+      created_at: null,
+      highlighted_text: null,
+      is_flagged: null,
+      is_reviewed: null,
+      review_notes: null,
+    };
+
     const { data, error } = await supabase
       .from("recommendations")
-      .insert([
-        {
-          title: title || null,
-          content: content || null,
-          uuid: null,
-          author: null,
-          created_at: null,
-          highlighted_text: null,
-          is_flagged: null,
-          is_reviewed: null,
-          review_notes: null,
-        } as Database["public"]["Tables"]["recommendations"]["Insert"]
-      ])
+      .insert([newEntry])
       .select()
       .single();
 
