@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { Database } from "@/types/supabase";
+import { Database, Json } from "@/types/supabase"; // Json tipi lazım
 
 type Entry = Database["public"]["Tables"]["recommendations"]["Row"];
+type Insert = Database["public"]["Tables"]["recommendations"]["Insert"];
 
 type EntryFormProps = {
   onEntryCreated: (newEntry: Entry) => void;
@@ -15,21 +16,21 @@ const EntryForm: React.FC<EntryFormProps> = ({ onEntryCreated }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const newEntry: Insert = {
+      title: title || null,
+      content: content || null,
+      uuid: null,
+      author: null,
+      created_at: null,
+      highlighted_text: null, // veya {} as Json
+      is_flagged: null,
+      is_reviewed: null,
+      review_notes: null,
+    };
+
     const { data, error } = await supabase
       .from("recommendations")
-      .insert([
-        {
-          title: title || null,
-          content: content || null,
-          uuid: null,
-          author: null,
-          created_at: null,
-          highlighted_text: {} as any, // ← burası hâlâ gerekli
-          is_flagged: null,
-          is_reviewed: null,
-          review_notes: null,
-        }, // ← burada type assertion yok
-      ])
+      .insert([newEntry])
       .select()
       .single();
 
