@@ -14,8 +14,8 @@ export default function EntryForm() {
       content: content || null,
       uuid: null,
       author: null,
-      created_at: null,
-      highlighted_text: null as Json, // Tip uyumu için as Json kullanıldı
+      created_at: new Date().toISOString(), // string veriyoruz
+      highlighted_text: {}, // boş JSON nesnesi uygun
       is_flagged: null,
       is_reviewed: null,
       review_notes: null,
@@ -28,9 +28,9 @@ export default function EntryForm() {
       .single();
 
     if (error) {
-      console.error("Veri eklenemedi:", error.message);
+      console.error("Ekleme hatası:", error.message);
     } else {
-      console.log("Başarılı eklendi:", data);
+      console.log("Başarıyla eklendi:", data);
       setTitle("");
       setContent("");
     }
