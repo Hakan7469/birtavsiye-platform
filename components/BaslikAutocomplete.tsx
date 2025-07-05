@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient"; // Düzeltildi
+import { supabase } from "../lib/supabaseClient";
+import { Database } from "@/types/supabase";
 
 type BaslikAutocompleteProps = {
   onSelect: (value: string) => void;
@@ -10,8 +11,16 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      const { data, error } = await supabase.from("recommendations").select("content");
-      if (data) setSuggestions(data.map((item) => item.content));
+      const { data, error } = await supabase
+        .from("recommendations")
+        .select("content");
+      if (error) {
+        console.error("Hata:", error.message);
+        return;
+      }
+      if (data) {
+        setSuggestions(data.map((item) => item.content as string));
+      }
     };
     fetchSuggestions();
   }, []);
