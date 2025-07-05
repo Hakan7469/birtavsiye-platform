@@ -14,14 +14,14 @@ export default function EntryForm() {
         {
           title,
           content,
-          uuid: null, // Opsiyonel alanlar nullable olarak dolduruldu
+          uuid: null,
           author: null,
           created_at: null,
           highlighted_text: null,
           is_flagged: null,
           is_reviewed: null,
           review_notes: null,
-        },
+        } as Database["public"]["Tables"]["recommendations"]["Insert"], // Tür asertasyonu
       ])
       .select()
       .single();
