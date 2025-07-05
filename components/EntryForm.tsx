@@ -1,28 +1,21 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { Database, Json } from "@/types/supabase"; // Json tipi lazım
+import { Database, Json } from "@/types/supabase";
 
-type Entry = Database["public"]["Tables"]["recommendations"]["Row"];
-type Insert = Database["public"]["Tables"]["recommendations"]["Insert"];
-
-type EntryFormProps = {
-  onEntryCreated: (newEntry: Entry) => void;
-};
-
-const EntryForm: React.FC<EntryFormProps> = ({ onEntryCreated }) => {
+export default function EntryForm() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newEntry: Insert = {
+    const newEntry: Database["public"]["Tables"]["recommendations"]["Insert"] = {
       title: title || null,
       content: content || null,
       uuid: null,
       author: null,
       created_at: null,
-      highlighted_text: null, // veya {} as Json
+      highlighted_text: null as Json, // Tip uyumu için as Json kullanıldı
       is_flagged: null,
       is_reviewed: null,
       review_notes: null,
@@ -35,34 +28,35 @@ const EntryForm: React.FC<EntryFormProps> = ({ onEntryCreated }) => {
       .single();
 
     if (error) {
-      console.error("Veri eklenirken hata oluştu:", error.message);
-    } else if (data) {
-      onEntryCreated(data);
+      console.error("Veri eklenemedi:", error.message);
+    } else {
+      console.log("Başarılı eklendi:", data);
       setTitle("");
       setContent("");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 p-4">
       <input
         type="text"
-        placeholder="Başlık"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full border rounded p-2"
+        placeholder="Başlık"
+        className="border p-2 rounded"
       />
       <textarea
-        placeholder="Tavsiye içeriği"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="w-full border rounded p-2"
+        placeholder="İçerik"
+        className="border p-2 rounded"
       />
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-        Ekle
+      <button
+        type="submit"
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Gönder
       </button>
     </form>
   );
-};
-
-export default EntryForm;
+}
