@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { Database, Json } from "@/types/supabase";
+import { Database } from "@/types/supabase";
 
 export default function EntryForm() {
   const [title, setTitle] = useState("");
@@ -14,8 +14,8 @@ export default function EntryForm() {
       content: content || null,
       uuid: null,
       author: null,
-      created_at: new Date().toISOString(), // string veriyoruz
-      highlighted_text: {}, // boş JSON nesnesi uygun
+      created_at: new Date().toISOString(), // Bu alan string olarak verilmeli
+      highlighted_text: {}, // JSON tipi, undefined değil!
       is_flagged: null,
       is_reviewed: null,
       review_notes: null,
@@ -37,23 +37,23 @@ export default function EntryForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2 p-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4">
       <input
         type="text"
+        placeholder="Başlık"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Başlık"
         className="border p-2 rounded"
       />
       <textarea
+        placeholder="İçerik"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder="İçerik"
         className="border p-2 rounded"
       />
       <button
         type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
         Gönder
       </button>
