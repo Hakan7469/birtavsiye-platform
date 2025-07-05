@@ -2,17 +2,24 @@ import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { Database } from "@/types/supabase";
 
-export default function EntryForm() {
+type Entry = Database["public"]["Tables"]["recommendations"]["Row"];
+
+type EntryFormProps = {
+  onEntryCreated: (newEntry: Entry) => void;
+};
+
+const EntryForm: React.FC<EntryFormProps> = ({ onEntryCreated }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const { data, error } = await supabase
       .from("recommendations")
       .insert([
         {
-          title: title || null, // undefined yerine null kullan
+          title: title || null,
           content: content || null,
           uuid: null,
           author: null,
@@ -21,28 +28,40 @@ export default function EntryForm() {
           is_flagged: null,
           is_reviewed: null,
           review_notes: null,
-        } as Database["public"]["Tables"]["recommendations"]["Insert"], // Tür asertasyonu
+        } as Database["public"]["Tables"]["recommendations"]["Insert"]
       ])
       .select()
       .single();
-    if (error) console.error("Hata:", error.message);
-    else console.log("Başarılı:", data);
+
+    if (error) {
+      console.error("Veri eklenirken hata oluştu:", error);
+    } else if (data) {
+      onEntryCreated(data);
+      setTitle("");
+      setContent("");
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-    <input
-      type="text"
-      value={title}
-      onChange={(e) => setTitle(e.target.value)}
-      placeholder="Başlık"
-    />
-    <textarea
-      value={content}
-      onChange={(e) => setContent(e.target.value)}
-      placeholder="İçerik"
-    />
-    <button type="submit">Gönder</button>
-  </form>
+    <form onSubmit={handleSubmit} className="space-y-2">
+      <input
+        type="text"
+        placeholder="Başlık"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="w-full border rounded p-2"
+      />
+      <textarea
+        placeholder="Tavsiye içeriği"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        className="w-full border rounded p-2"
+      />
+      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+        Ekle
+      </button>
+    </form>
   );
-}
+};
+
+export default EntryForm;
