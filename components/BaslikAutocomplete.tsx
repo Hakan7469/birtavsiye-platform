@@ -1,67 +1,24 @@
-// components/BaslikAutocomplete.tsx
-
-import { useEffect, useState } from "react"
-import { supabase } from "../lib/supabaseClient"; // Düzeltülmüş import yolu
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient"; // Düzeltildi
 
 type BaslikAutocompleteProps = {
-  onSelect: (value: string) => void
-}
+  onSelect: (value: string) => void;
+};
 
 export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps) {
-  const [basliklar, setBasliklar] = useState<string[]>([])
-  const [filtered, setFiltered] = useState<string[]>([])
-  const [input, setInput] = useState("")
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchTitles = async () => {
-      const { data, error } = await supabase
-        .from("entries")
-        .select("title")
-
-      if (!error && data) {
-        const unique = Array.from(new Set(data.map((d) => d.title)))
-        setBasliklar(unique)
-      }
-    }
-
-    fetchTitles()
-  }, [])
-
-  useEffect(() => {
-    if (!input) {
-      setFiltered([])
-      return
-    }
-    const f = basliklar.filter((b) => b.toLowerCase().includes(input.toLowerCase()))
-    setFiltered(f.slice(0, 10))
-  }, [input, basliklar])
+    const fetchSuggestions = async () => {
+      const { data, error } = await supabase.from("recommendations").select("content");
+      if (data) setSuggestions(data.map((item) => item.content));
+    };
+    fetchSuggestions();
+  }, []);
 
   return (
-    <div className="relative w-full max-w-md">
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="başlık"
-        className="border px-2 py-1 w-full text-sm"
-      />
-      {filtered.length > 0 && (
-        <ul className="absolute z-10 w-full bg-white border mt-1 text-sm max-h-48 overflow-y-auto">
-          {filtered.map((b, i) => (
-            <li
-              key={i}
-              onClick={() => {
-                onSelect(b)
-                setInput("")
-                setFiltered([])
-              }}
-              className="px-2 py-1 hover:bg-yellow-100 cursor-pointer"
-            >
-              {b}
-            </li>
-          ))}
-        </ul>
-      )}
+    <div>
+      {/* Autocomplete UI */}
     </div>
-  )
+  );
 }
