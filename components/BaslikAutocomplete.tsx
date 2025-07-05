@@ -19,7 +19,11 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
         return;
       }
       if (data && Array.isArray(data)) {
-        setSuggestions(data.map((item) => item.content as string));
+        setSuggestions(
+          data
+            .map((item: Database["public"]["Tables"]["recommendations"]["Row"]) => item.content)
+            .filter((content): content is string => content !== null) // Null değerleri filtrele
+        );
       }
     };
     fetchSuggestions();
