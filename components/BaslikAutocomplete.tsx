@@ -6,6 +6,9 @@ type BaslikAutocompleteProps = {
   onSelect: (value: string) => void;
 };
 
+// Tür tanımı için select("content")'in döndürdüğü nesne
+type ContentResult = { content: string | null };
+
 export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
@@ -21,7 +24,7 @@ export default function BaslikAutocomplete({ onSelect }: BaslikAutocompleteProps
       if (data && Array.isArray(data)) {
         setSuggestions(
           data
-            .map((item: Database["public"]["Tables"]["recommendations"]["Row"]) => item.content)
+            .map((item: ContentResult) => item.content) // Yalnızca content alanını al
             .filter((content): content is string => content !== null) // Null değerleri filtrele
         );
       }
