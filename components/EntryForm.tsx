@@ -12,8 +12,8 @@ export default function EntryForm() {
       .from("recommendations")
       .insert([
         {
-          title,
-          content,
+          title: title || null, // undefined yerine null kullan
+          content: content || null,
           uuid: null,
           author: null,
           created_at: null,
@@ -31,18 +31,18 @@ export default function EntryForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Başlık"
-      />
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="İçerik"
-      />
-      <button type="submit">Gönder</button>
-    </form>
+    <input
+      type="text"
+      value={title}
+      onChange={(e) => setTitle(e.target.value)}
+      placeholder="Başlık"
+    />
+    <textarea
+      value={content}
+      onChange={(e) => setContent(e.target.value)}
+      placeholder="İçerik"
+    />
+    <button type="submit">Gönder</button>
+  </form>
   );
 }
