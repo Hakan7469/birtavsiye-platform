@@ -22,7 +22,7 @@ const EntryForm: React.FC<EntryFormProps> = ({ onEntryCreated }) => {
       uuid: null,
       author: null,
       created_at: null,
-      highlighted_text: null,
+      highlighted_text: {} as any, // Json tipini memnun etmek için boş nesne cast ediyoruz
       is_flagged: null,
       is_reviewed: null,
       review_notes: null,
